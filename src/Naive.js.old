@@ -1,0 +1,164 @@
+import React, { Component } from 'react'
+import _ from 'lodash'
+
+export default class Naive extends Component {
+  state = {
+    listSentiment: [],
+    checkSentiment: [],
+    checkString: '',
+    listUniqueKey: [],
+    listAllClassification: [],
+    resultClassification: []
+  }
+
+  getSentiment = (sentiment, category) => {
+    const unique = require('unique-words')
+    let arrayCheckSentiment = sentiment.toLowerCase().replace(/[!"#$%&'()*+,-./:;<=>?@[\]^_`{¦}~]/g,"").split(" ")
+    let objectSentiment = { category: category.toLowerCase(), sentiment: unique(arrayCheckSentiment), string: sentiment }
+    this.setState({ listSentiment: [...this.state.listSentiment, objectSentiment] })
+  }
+
+  checkSentiment = (sentiment) => {
+    let arrayCheckSentiment = sentiment.toLowerCase().replace(/[!"#$%&'()*+,-./:;<=>?@[\]^_`{¦}~]/g,"").split(" ")
+    this.setState({
+      checkSentiment: arrayCheckSentiment,
+      checkString: sentiment
+    })
+  }
+
+  getListSentiment = () => {
+    const unique = require('unique-words')
+    const { listSentiment } = this.state
+    let joinedKeyWord = []
+    listSentiment.map(object =>
+      joinedKeyWord = [...joinedKeyWord, ...object.sentiment]
+    )
+    let getUniqueKey = unique(joinedKeyWord)
+    this.setState({ listUniqueKey: getUniqueKey })
+  }
+
+  runClassificator = () => {
+    const { listSentiment, checkSentiment, listUniqueKey, checkString } = this.state
+    let countAllCategory = []
+    let arrayProbabilitasCategory = []
+    let arrayKeyChecked = []
+    let listAllP = []
+    let lengthUmum = 0
+    let pUmum = 0
+    let lengthUang = 0
+    let pUang = 0
+    let lengthMhs = 0
+    let pMhs = 0
+    let lengthAkademik = 0
+    let pAkademik = 0
+
+    listSentiment.map(key => {
+      if (key.category === 'umum') {
+        lengthUmum++
+      } else if (key.category === 'keuangan') {
+        lengthUang++
+      } else if (key.category === 'akademik') {
+        lengthAkademik++
+      } else if (key.category === 'kemahasiswaan') {
+        lengthMhs++
+      }
+    })
+
+    pUmum = lengthUmum / listSentiment.length
+    pUang = lengthUang / listSentiment.length
+    pAkademik = lengthAkademik / listSentiment.length
+    pMhs = lengthMhs / listSentiment.length
+
+    console.log(listUniqueKey, listSentiment, lengthUmum,  listSentiment.length, pUmum)
+    // console.log(listSentiment)
+      /*
+    let countGroupedCategory = Object.entries(_.countBy(listSentiment, 'category'))
+    listSentiment.map(object =>
+      countAllCategory.push(object.category)
+    )
+    countGroupedCategory.map(array => {
+      let probabilitasCategory = array[1] / countAllCategory.length
+      return arrayProbabilitasCategory = [...arrayProbabilitasCategory, { category: array[0], probability: probabilitasCategory }]
+    })
+
+    checkSentiment.map(array =>
+      listSentiment.map(key => {
+        let filterKeySentiment = listUniqueKey.filter(e => key.sentiment.includes(e))
+        let checkKeyInList = key.sentiment.filter(x => x === array ).length
+        return arrayKeyChecked = [...arrayKeyChecked, { category: array + ' ' + key.category, nk: checkKeyInList, length: filterKeySentiment.length }]
+      })
+    )
+
+    let groupedArrayKeyCheck = _(arrayKeyChecked).groupBy('category').map((object, category) => ({
+      'category': category,
+      'nk': _.sumBy(object, 'nk'),
+      'n': _.sumBy(object, 'length')
+    })).value()
+
+    countGroupedCategory.map(object =>
+      checkSentiment.map(key => {
+        let filtern = _.filter(groupedArrayKeyCheck, { category: key + ' ' + object[0] })
+        let letP = (filtern[0].nk + 1) / (filtern[0].n + listUniqueKey.length)
+        return listAllP = [...listAllP, { category: object[0], P: letP }]
+      })
+    )
+
+    let groupedAllP = _(listAllP).groupBy('category').map((object, category) => ({
+      'category': category,
+      'probability': _.sumBy(object, 'P')
+    })).value()
+
+    let arrayProbability = arrayProbabilitasCategory.concat(groupedAllP)
+    let groupedProbability = _(arrayProbability).groupBy('category').map((object, category) => ({
+      'category': category,
+      'probability': _.sumBy(object, 'probability')
+    })).value()
+
+    let result = _.maxBy(groupedProbability, 'probability')
+
+    this.setState({
+      listAllClassification: groupedProbability,
+      resultClassification: result
+    })
+
+    console.log(listSentiment, listUniqueKey, checkSentiment, checkString, groupedProbability, result)
+    */
+  }
+
+  componentDidMount = async () => {
+    await this.getSentiment('Tolong Kelas Kalau Bisa Ditambah AC', 'Umum')
+    await this.getSentiment('Ruangan Kurang Nyaman', 'Umum')
+    await this.getSentiment('LCD Ditambah', 'Umum')
+    await this.getSentiment('SIAKAD Sering berubah Jadwal Kuliah', 'Akademik')
+    await this.getSentiment('Dosen Sering Tidur', 'Akademik')
+    await this.getSentiment('UKT Kalo Bisa diturunkan', 'Keuangan')
+    await this.getSentiment('SIAKAD Sering berubah Jadwal Kuliah', 'Kemahasiswaan')
+    await this.getSentiment('dana ukm kurang', 'Keuangan')
+    await this.getSentiment('jam kuliah kalo bisa Cuma 1 sks', 'Akademik')
+    await this.getSentiment('ujian kp dibuat damai', 'Akademik')
+    await this.getSentiment('wifi kurang kencang', 'Umum')
+    await this.getSentiment('wifi kurang banyak', 'Umum')
+    await this.getSentiment('wifi gampang putus', 'Umum')
+    await this.getSentiment('parkir semrawut', 'Umum')
+    await this.getSentiment('AC ganti baru', 'Umum')
+    await this.getSentiment('Kamar mandi tidak terawat', 'Umum')
+    await this.getSentiment('mushola tidak ada sajadah', 'Umum')
+    await this.getSentiment('mushola bau kaki', 'Umum')
+    await this.getSentiment('bobolan gang dosen ditutup jam 1800', 'Umum')
+    await this.getSentiment('tolong tembok dilubangi agar bu muji  bisa berdagang', 'Umum')
+    await this.getSentiment('tolong kantin diperlebar', 'Umum')
+    await this.getSentiment('Kuliah jangan terlalu malam kasian para wanita', 'Akademik')
+    await this.getSentiment('Tolong dibuat area khusus merokok', 'Umum')
+    // await this.checkSentiment('tolong kantin khusus wanita dan pria dibuat agar pria bisa merokok')
+    await this.checkSentiment('ukt tolong diturunkan, karena tidak sesuai dengan fasilitas yang didapat')
+    await this.getListSentiment()
+    await this.runClassificator()
+  }
+
+  render() {
+    return (
+      <div>
+      </div>
+    )
+  }
+}
